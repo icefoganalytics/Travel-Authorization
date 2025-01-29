@@ -1,36 +1,11 @@
-import * as fs from "fs/promises"
-import * as path from "path"
-
 import logger from "@/utils/logger"
-
-const NON_INITIALIZER_REGEX = /^index\.(ts|js)$/
-
-export async function importAndExecuteInitializers() {
-  const files = await fs.readdir(__dirname)
-
-  for (const file of files) {
-    if (NON_INITIALIZER_REGEX.test(file)) continue
-
-    const modulePath = path.join(__dirname, file)
-    logger.info(`Running initializer: ${modulePath}`)
-
-    try {
-      const { default: initializerAction } = await require(modulePath)
-      await initializerAction()
-    } catch (error) {
-      logger.error(`Failed to run initializer: ${modulePath}`, { error })
-      throw error
-    }
-  }
-
-  return true
-}
+import importAndExecuteInitializers from "@/utils/import-and-execute-initializers"
 
 if (require.main === module) {
   // TODO: add some kind of middleware that 503s? if initialization failed?
   ;(async () => {
     try {
-      await importAndExecuteInitializers()
+      await importAndExecuteInitializers(__dirname)
     } catch {
       logger.error("Failed to complete initialization!")
     }

@@ -8,6 +8,11 @@ x-default-environment: &default-environment
   DB_PASS: &default-db-password itsallgood
   DB_USER: &default-db-user app
   DB_PORT: 5432
+  TRAVCOM_DB_HOST: db_trav_com
+  TRAVCOM_DB_USER: sa
+  TRAVCOM_DB_PASS: &default-trav-com-db-password "DevPwd99!"
+  TRAVCOM_DB_NAME: trav_com_development
+  TRAVCOM_DB_PORT: 1433
   RELEASE_TAG: "${RELEASE_TAG:-development}"
   GIT_COMMIT_HASH: "${GIT_COMMIT_HASH:-not-set}"
 
@@ -91,6 +96,19 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  # Represents an external database for TravCom (maybe Travel Compliance?)
+  db_trav_com:
+    image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
+    user: root
+    environment:
+      MSSQL_SA_PASSWORD: *default-trav-com-db-password # requires secure password
+      TZ: "America/Whitehorse"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - db_trav_com_data:/var/opt/mssql/data
+
   # For easily generating large PlantUML diagrams
   # Not relevant to production environment.
   # Accessible at http://localhost:9999
@@ -103,3 +121,4 @@ services:
 
 volumes:
   db_data:
+  db_trav_com_data:
