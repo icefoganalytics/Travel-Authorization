@@ -45,7 +45,11 @@
         <v-list-item-title>Travel Request</v-list-item-title>
       </v-list-item>
 
-      <v-list-item to="/flight-expense">
+      <v-list-item
+        :to="{
+          name: 'FlightExpenseHome',
+        }"
+      >
         <v-list-item-icon>
           <v-icon>mdi-cash</v-icon>
         </v-list-item-icon>

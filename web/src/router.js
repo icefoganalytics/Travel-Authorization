@@ -6,7 +6,6 @@ import { authGuard } from "@/utils/auth-guard"
 import preapprovedRouter from "@/modules/preapproved/router"
 import travelDeskRouter from "@/modules/travelDesk/router"
 import travelAuthorizationsRouter from "@/modules/travel-authorizations/router"
-import flightExpenseRouter from "@/modules/flightExpenses/router"
 import reportsRouter from "@/modules/reports/router"
 
 Vue.use(VueRouter)
@@ -68,6 +67,11 @@ const routes = [
             path: "travel-desk/:travelDeskTravelRequestId/manage-flight-segments",
             component: () => import("@/pages/travel-desk/TravelDeskFlightSegmentsManagePage.vue"),
             props: true,
+          },
+          {
+            path: "/flight-expenses",
+            name: "FlightExpenseHome",
+            component: () => import("@/modules/flightExpenses/views/FlightExpense.vue"),
           },
           // Start of Administration pages
           {
@@ -154,7 +158,6 @@ const routes = [
   ...preapprovedRouter,
   ...travelDeskRouter,
   ...travelAuthorizationsRouter,
-  ...flightExpenseRouter,
   ...reportsRouter,
   {
     path: "",
