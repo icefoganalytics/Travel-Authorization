@@ -96,110 +96,76 @@
         :flights="flights"
         :un-reconciled-flights="unReconciledFlights"
         :reconciled-flights="reconciledFlights"
-        @updateTable="reloadData"
+        @updateTable="refresh"
       ></router-view>
     </v-card-text>
   </v-card>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from "vue"
 import { DateTime } from "luxon"
 
 import http from "@/api/http-client"
-import { TRAVEL_COM_URL, PROFILE_URL } from "@/urls"
+import { TRAVEL_COM_URL } from "@/urls"
 import { greaterThanDate, lessThanDate } from "@/utils/validators"
 
-export default {
-  name: "FlightExpensesLayout",
-  data() {
-    return {
-      flights: [],
-      isLoading: false,
-      reconciledFlights: [],
-      unReconciledFlights: [],
-      alertMsg: "",
-      startDate: "",
-      endDate: "",
-    }
-  },
-  computed: {
-    endDateMinusOneDay() {
-      return DateTime.fromISO(this.endDate).minus({ days: 1 }).toISODate()
-    },
-    startDatePlusOneDay() {
-      return DateTime.fromISO(this.startDate).plus({ days: 1 }).toISODate()
-    },
-  },
-  async mounted() {
-    this.endDate = new Date().toISOString().slice(0, 10)
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - 30) //1 months
-    this.startDate = startDate.toISOString().slice(0, 10)
-    this.alertMsg = ""
-    this.reloadData()
-  },
-  methods: {
-    greaterThanDate,
-    lessThanDate,
-    async getUserAuth() {
-      return http
-        .get(PROFILE_URL)
-        .then((resp) => {
-          this.$store.commit("auth/setUser", resp.data.user)
-        })
-        .catch((e) => {
-          console.log(e)
-        })
-    },
+const flights = ref([])
+const reconciledFlights = computed(() => flights.value.filter((flight) => flight.reconciled))
+const unReconciledFlights = computed(() => flights.value.filter((flight) => !flight.reconciled))
 
-    async getFlights() {
-      return http
-        .get(`${TRAVEL_COM_URL}/flights/${this.startDate}/${this.endDate}`)
-        .then((resp) => {
-          console.log(resp.data)
-          this.flights = resp.data
-        })
-        .catch((e) => {
-          console.log(e)
-        })
-    },
+const alertMsg = ref("")
 
-    extractFlights() {
-      this.reconciledFlights = []
-      this.unReconciledFlights = []
+const isLoading = ref(false)
 
-      for (const flight of this.flights) {
-        if (flight.reconciled) {
-          this.reconciledFlights.push(flight)
-        } else {
-          this.unReconciledFlights.push(flight)
-        }
-      }
-    },
+const startDate = ref("")
+const endDate = ref("")
 
-    async search() {
-      this.alertMsg = ""
-      const start = new Date(this.startDate + "T01:00:00.000Z")
-      const end = new Date(this.endDate + "T01:00:00.000Z")
-      const diffTime = Math.abs(end.getTime() - start.getTime())
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+const endDateMinusOneDay = computed(() => {
+  return DateTime.fromISO(endDate.value).minus({ days: 1 }).toISODate()
+})
+const startDatePlusOneDay = computed(() => {
+  return DateTime.fromISO(startDate.value).plus({ days: 1 }).toISODate()
+})
 
-      if (diffDays > 60) {
-        this.alertMsg =
-          "If the Date Range is over 60 days, all records may not be displayed. Please use a shorter Date Range."
-      }
-      await this.reloadData()
-    },
+onMounted(() => {
+  endDate.value = DateTime.local().toISODate()
+  startDate.value = DateTime.fromISO(endDate.value).minus({ days: 1 }).toISODate()
 
-    async reloadData() {
-      this.isLoading = true
-      try {
-        await this.getFlights()
-        this.extractFlights()
-      } finally {
-        this.isLoading = false
-      }
-    },
-  },
+  alertMsg.value = ""
+  refresh()
+})
+
+async function getFlights() {
+  isLoading.value = true
+  try {
+    const { data: newFlights } = await http.get(
+      `${TRAVEL_COM_URL}/flights/${startDate.value}/${endDate.value}`
+    )
+    flights.value = newFlights || []
+  } catch (error) {
+    console.log(`Failed to load flights: ${error}`)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function refresh() {
+  return getFlights()
+}
+
+async function search() {
+  alertMsg.value = ""
+
+  // TODO: replace this with date max/min restraints, or paginate data.
+  const diffDays = DateTime.fromISO(endDate.value).diff(
+    DateTime.fromISO(startDate.value),
+    "days"
+  ).days
+  if (diffDays > 60) {
+    alertMsg.value =
+      "If the Date Range is over 60 days, not all records may displayed. Please use a shorter Date Range."
+  }
+  await refresh()
 }
 </script>
