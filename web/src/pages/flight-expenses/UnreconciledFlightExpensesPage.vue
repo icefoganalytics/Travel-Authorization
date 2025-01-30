@@ -14,16 +14,15 @@
         :disabled="selectedFlights.length == 0"
         class="ml-4"
         color="primary"
-        @click="openUnReconcile"
+        @click="openReconcile"
       >
-        UnReconcile
+        Reconcile
       </v-btn>
     </v-row>
-
     <v-data-table
       v-model="selectedFlights"
       :headers="headers"
-      :items="reconciledFlights"
+      :items="unReconciledFlights"
       :items-per-page="15"
       dense
       class="elevation-1 mt-4"
@@ -77,27 +76,35 @@
     </v-data-table>
 
     <v-dialog
-      v-model="unReconcileDialog"
+      v-model="reconcileDialog"
       persistent
       max-width="400px"
     >
       <v-card>
         <v-card-title
-          class="warning"
+          class="primary"
           style="border-bottom: 1px solid black"
         >
-          <div class="text-h5">Unreconcile Flights</div>
+          <div class="text-h5">Reconcile Flights</div>
         </v-card-title>
 
-        <v-card-text class="mt-4">
-          By Unreconciling these records, the period will be removed and the record will be returned
-          to the reconcile list.
+        <v-card-text>
+          <v-select
+            v-model="period"
+            class="mt-5"
+            label="What Period?"
+            :error="periodErr"
+            :items="periodOptions"
+            outlined
+            @change="periodErr = false"
+          >
+          </v-select>
         </v-card-text>
 
         <v-card-actions>
           <v-btn
             color="grey darken-5"
-            @click="unReconcileDialog = false"
+            @click="reconcileDialog = false"
           >
             Cancel
           </v-btn>
@@ -105,9 +112,9 @@
             class="ml-auto"
             :loading="savingData"
             color="green darken-1"
-            @click="unReconcile"
+            @click="addPeriod"
           >
-            Continue
+            Reconcile
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -123,9 +130,9 @@ import http from "@/api/http-client"
 import { FLIGHT_RECONCILE_URL } from "@/urls"
 
 export default {
-  name: "ReconciledFlights",
+  name: "UnreconciledFlightExpensesPage",
   props: {
-    reconciledFlights: {
+    unReconciledFlights: {
       type: Array,
       default: () => [],
     },
@@ -178,19 +185,18 @@ export default {
           value: "travelerLastName",
           class: "blue-grey lighten-4",
         },
-        {
-          text: "Reconcile Period",
-          value: "reconcilePeriod",
-          class: "blue-grey lighten-4",
-        },
       ],
       admin: false,
-      unReconcileDialog: false,
-      savingData: false,
       selectedFlights: [],
+      reconcileDialog: false,
+      savingData: false,
+      period: null,
+      periodErr: false,
+      periodOptions: [...Array(12).keys()].map((x) => x + 1), // [1,2,3,4,5,6,7,8,9,10,12,14]
     }
   },
   mounted() {
+    this.periodOptions.push(14)
     this.admin = true
     //TODO: update this
     const temp = Vue.filter("isAdmin")()
@@ -200,6 +206,45 @@ export default {
   methods: {
     updateTable() {
       this.$emit("updateTable")
+    },
+
+    openReconcile() {
+      this.period = null
+      this.periodErr = false
+      this.savingData = false
+      this.reconcileDialog = true
+    },
+
+    addPeriod() {
+      if (!this.period) {
+        this.periodErr = true
+        return
+      }
+      console.log(this.selectedFlights)
+      this.savingData = true
+      const body = []
+      for (const flight of this.selectedFlights) {
+        const reconcile = {
+          invoiceID: flight.invoiceID,
+          invoiceDetailID: flight.invoiceDetailID,
+          reconciled: true,
+          reconcilePeriod: this.period,
+        }
+        if (flight.reconcileID) reconcile.reconcileID = flight.reconcileID
+        body.push(reconcile)
+      }
+
+      return http
+        .post(`${FLIGHT_RECONCILE_URL}/`, body)
+        .then(() => {
+          this.savingData = false
+          this.reconcileDialog = false
+          this.updateTable()
+        })
+        .catch((e) => {
+          this.savingData = false
+          console.log(e)
+        })
     },
 
     exportToExcel() {
@@ -215,7 +260,6 @@ export default {
           travelerFirstName: flight.travelerFirstName ? flight.travelerFirstName : "",
           travelerLastName: flight.travelerLastName ? flight.travelerLastName : "",
           reconciled: flight.reconciled ? "Yes" : "No",
-          reconcilePeriod: flight.reconcilePeriod ? flight.reconcilePeriod : "",
         }
       })
       const options = {
@@ -244,38 +288,6 @@ export default {
       }
       const csvExporter = new ExportToCsv(options)
       csvExporter.generateCsv(csvInfo)
-    },
-
-    openUnReconcile() {
-      this.savingData = false
-      this.unReconcileDialog = true
-    },
-
-    unReconcile() {
-      this.savingData = true
-      const body = []
-      for (const flight of this.selectedFlights) {
-        const reconcile = {
-          reconcileID: flight.reconcileID,
-          invoiceID: flight.invoiceID,
-          invoiceDetailID: flight.invoiceDetailID,
-          reconciled: false,
-          reconcilePeriod: null,
-        }
-        body.push(reconcile)
-      }
-
-      return http
-        .post(`${FLIGHT_RECONCILE_URL}/`, body)
-        .then(() => {
-          this.savingData = false
-          this.unReconcileDialog = false
-          this.updateTable()
-        })
-        .catch((e) => {
-          this.savingData = false
-          console.log(e)
-        })
     },
   },
 }

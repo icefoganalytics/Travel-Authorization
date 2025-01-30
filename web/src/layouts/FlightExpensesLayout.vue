@@ -95,59 +95,48 @@
             v-model="tabs"
             active-class="primary--text teal lighten-5"
           >
-            <v-tab>Flights</v-tab>
-            <v-tab>Unreconciled</v-tab>
-            <v-tab>Reconciled</v-tab>
+            <v-tab
+              :to="{
+                name: 'flight-expenses/AllFlightExpenesPage',
+              }"
+            >
+              Flights
+            </v-tab>
+            <v-tab
+              :to="{
+                name: 'flight-expenses/UnreconciledFlightExpensesPage',
+              }"
+            >
+              Unreconciled
+            </v-tab>
+            <v-tab
+              :to="{
+                name: 'flight-expenses/ReconciledFlightExpensesPage',
+              }"
+            >
+              Reconciled
+            </v-tab>
           </v-tabs>
         </template>
       </v-toolbar>
 
-      <v-tabs-items
-        v-if="dataReady"
-        v-model="tabs"
-      >
-        <v-tab-item>
-          <v-card flat>
-            <flights :flights="flights" />
-          </v-card>
-        </v-tab-item>
-        <v-tab-item>
-          <v-card flat>
-            <un-reconciled-flights
-              :un-reconciled-flights="unReconciledFlights"
-              @updateTable="reloadData(1, false)"
-            />
-          </v-card>
-        </v-tab-item>
-        <v-tab-item>
-          <v-card flat>
-            <reconciled-flights
-              :reconciled-flights="reconciledFlights"
-              @updateTable="reloadData(2, false)"
-            />
-          </v-card>
-        </v-tab-item>
-      </v-tabs-items>
+      <!-- TODO: make each tab load its own data via composable -->
+      <router-view
+        :flights="flights"
+        :un-reconciled-flights="unReconciledFlights"
+        :reconciled-flights="reconciledFlights"
+        @updateTable="reloadData"
+      ></router-view>
     </div>
   </v-card>
 </template>
 
 <script>
-import Vue from "vue"
-
 import http from "@/api/http-client"
 import { TRAVEL_COM_URL, PROFILE_URL } from "@/urls"
-import Flights from "@/modules/flightExpenses/views/Flights.vue"
-import ReconciledFlights from "@/modules/flightExpenses/views/Reconciled/ReconciledFlights.vue"
-import UnReconciledFlights from "@/modules/flightExpenses/views/Unreconciled/UnReconciledFlights.vue"
 
 export default {
-  name: "FlightExpense",
-  components: {
-    Flights,
-    ReconciledFlights,
-    UnReconciledFlights,
-  },
+  name: "FlightExpensesLayout",
   data() {
     return {
       tabs: 0,
@@ -169,7 +158,7 @@ export default {
     startDate.setDate(startDate.getDate() - 30) //1 months
     this.startDate = startDate.toISOString().slice(0, 10)
     this.alertMsg = ""
-    this.reloadData(0, true)
+    this.reloadData()
   },
   methods: {
     async getUserAuth() {
@@ -223,18 +212,16 @@ export default {
       if (diffDays > 60)
         this.alertMsg =
           "If the Date Range is over 60 days, all records may not be displayed. Please use a shorter Date Range."
-      await this.reloadData(this.tabs, false)
+      await this.reloadData()
     },
 
-    async reloadData(tabs, auth) {
+    async reloadData() {
       this.dataReady = false
       this.loadingData = true
-      if (auth) console.log(auth) //await this.getUserAuth();
       await this.getFlights()
       this.extractFlights()
       this.loadingData = false
       this.dataReady = true
-      Vue.nextTick(() => (this.tabs = tabs))
     },
   },
 }

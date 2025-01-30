@@ -70,8 +70,29 @@ const routes = [
           },
           {
             path: "/flight-expenses",
-            name: "FlightExpenseHome",
-            component: () => import("@/modules/flightExpenses/views/FlightExpense.vue"),
+            component: () => import("@/layouts/FlightExpensesLayout.vue"),
+            children: [
+              {
+                path: "",
+                redirect: "all",
+              },
+              {
+                path: "all",
+                name: "flight-expenses/AllFlightExpenesPage",
+                component: () => import("@/pages/flight-expenses/AllFlightExpenesPage.vue"),
+              },
+              {
+                path: "reconciled",
+                name: "flight-expenses/ReconciledFlightExpensesPage",
+                component: () => import("@/pages/flight-expenses/ReconciledFlightExpensesPage.vue"),
+              },
+              {
+                path: "unreconciled",
+                name: "flight-expenses/UnreconciledFlightExpensesPage",
+                component: () =>
+                  import("@/pages/flight-expenses/UnreconciledFlightExpensesPage.vue"),
+              },
+            ],
           },
           // Start of Administration pages
           {
