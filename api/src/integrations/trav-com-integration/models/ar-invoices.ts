@@ -1,15 +1,3 @@
-export type ArInvoice = {
-  invoiceID: number
-  invoiceNumber: string
-  profileNumber: string | null
-  profileName: string | null
-  department: string | null
-  bookingDate: string | null
-  systemDate: string | null
-  description: string | null
-  invoiceRemarks: string | null
-}
-
 export type ArInvoiceNoHealthRaw = {
   InvoiceID: number
   InvoiceNumber: string
@@ -20,4 +8,16 @@ export type ArInvoiceNoHealthRaw = {
   SystemDate: string | null
   Description: string | null
   InvoiceRemarks: string | null
+}
+
+export type ArInvoice = {
+  invoiceID: number
+  invoiceNumber: string
+  profileNumber: string | null
+  profileName: string | null
+  department: string | null
+  bookingDate: string | null
+  systemDate: string | null
+  description: string | null
+  invoiceRemarks: string | null
 }
