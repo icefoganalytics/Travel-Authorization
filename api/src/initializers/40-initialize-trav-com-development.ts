@@ -1,4 +1,5 @@
 import { NODE_ENV, TRAV_COM_INITIALIZER_PATH } from "@/config"
+import logger from "@/utils/logger"
 import importAndExecuteInitializers from "@/utils/import-and-execute-initializers"
 
 // NOTE: TravCom initializer is only run in non-production environments.
@@ -10,3 +11,17 @@ export async function initializeTravComDevelopment(): Promise<void> {
 }
 
 export default initializeTravComDevelopment
+
+
+// Run via `dev ts-node ./src/initializers/40-initialize-trav-com-development.ts`
+if (require.main === module) {
+  ;(async () => {
+    try {
+      await initializeTravComDevelopment()
+    } catch {
+      logger.error("Failed to complete initialization!")
+    }
+
+    process.exit(0)
+  })()
+}

@@ -1,8 +1,8 @@
-import { logger } from "@/utils/logger"
+import logger from "@/utils/logger"
 import travComDbClient from "@/integrations/trav-com-integration/db/trav-com-db-client"
 
-export async function runSeeds(): Promise<void> {
-  if (process.env.SKIP_SEEDING_UNLESS_EMPTY === "true") {
+export async function runSeeds(force = false): Promise<void> {
+  if (process.env.SKIP_SEEDING_UNLESS_EMPTY === "true" && force !== true) {
     const count = await travComDbClient("ARInvoicesNoHealth")
       .count({ count: "*" })
       .then((r) => Number(r[0].count || "0"))
@@ -24,3 +24,16 @@ export async function runSeeds(): Promise<void> {
 }
 
 export default runSeeds
+
+// Run via `dev ts-node ./src/integrations/trav-com-integration/initializers/30-run-seeds.ts`
+if (require.main === module) {
+  ;(async () => {
+    try {
+      await runSeeds(true)
+    } catch {
+      logger.error("Failed to complete initialization!")
+    }
+
+    process.exit(0)
+  })()
+}
