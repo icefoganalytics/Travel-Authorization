@@ -1,4 +1,6 @@
 export { greaterThanOrEqualToDate } from "./greater-than-or-equal-to-date"
+export { greaterThanDate } from "./greater-than-date"
+export { lessThanDate } from "./less-than-date"
 export { isEmail } from "./is-email"
 export { isGeneralLedgerCode } from "./is-general-ledger-code"
 export { isInteger } from "./is-integer"
