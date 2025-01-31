@@ -53,7 +53,7 @@
         <v-list-item-icon>
           <v-icon>mdi-cash</v-icon>
         </v-list-item-icon>
-        <v-list-item-title>Flight Expense</v-list-item-title>
+        <v-list-item-title>Flight Expenses</v-list-item-title>
       </v-list-item>
 
       <v-list-item to="/reporting-summary">
