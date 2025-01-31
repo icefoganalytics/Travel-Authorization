@@ -94,7 +94,8 @@
 
       <!-- TODO: make each tab load its own data via composable -->
       <router-view
-        :flights="flights"
+        :start-date="startDate"
+        :end-date="endDate"
         :un-reconciled-flights="unReconciledFlights"
         :reconciled-flights="reconciledFlights"
         @updateTable="refresh"

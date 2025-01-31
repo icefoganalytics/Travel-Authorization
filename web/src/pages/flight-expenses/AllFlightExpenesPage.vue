@@ -1,15 +1,9 @@
 <template>
-  <!-- TODO: build a stock flight expenses table component -->
-  <v-data-table
+  <ArInvoicesDataTable
     v-model="selectedFlights"
-    :headers="headers"
-    :items="flights"
-    :items-per-page="15"
-    dense
-    item-key="invoiceDetailID"
-    :show-select="isAdmin"
+    :filters="filters"
   >
-    <template #top>
+    <template #top="{ isAdmin }">
       <v-row v-if="isAdmin">
         <v-spacer />
         <v-col
@@ -27,123 +21,44 @@
         </v-col>
       </v-row>
     </template>
-    <template #item.purchaseDate="{ item }">
-      {{ formatDate(item.purchaseDate) }}
-    </template>
-
-    <template #item.agent="{ item }">
-      {{ capitalize(item.agent) }}
-    </template>
-
-    <template #item.airline="{ item }">
-      {{ capitalize(item.airline) }}
-    </template>
-
-    <template #item.travelerFirstName="{ item }">
-      {{ capitalize(item.travelerFirstName) }}
-    </template>
-
-    <template #item.travelerLastName="{ item }">
-      {{ capitalize(item.travelerLastName) }}
-    </template>
-
-    <template #item.flightInfo="{ item }">
-      <div
-        v-for="(flight, index) in item.flightInfo.split(',')"
-        :key="'flight-info-' + index"
-        style="line-height: 1rem"
-      >
-        {{ flight }}
-      </div>
-    </template>
-    <template #item.cost="{ item }"> {{ formatCurrency(item.cost) }} </template>
-    <template #item.reconciled="{ item }">
-      <div class="text-center">
-        <v-icon
-          v-if="item.reconciled"
-          color="success"
-          >mdi-checkbox-marked</v-icon
-        >
-        <v-icon
-          v-else
-          color="warning"
-          >mdi-close-box</v-icon
-        >
-      </div>
-    </template>
-  </v-data-table>
+  </ArInvoicesDataTable>
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { ExportToCsv } from "export-to-csv"
+import { isNil, isEmpty } from "lodash"
 
-import capitalize from "lodash/capitalize"
-import formatCurrency from "@/utils/format-currency"
-import formatDate from "@/utils/format-date"
-import useCurrentUser from "@/use/use-current-user"
+import ArInvoicesDataTable from "@/components/trav-com/ar-invoices/ArInvoicesDataTable.vue"
 
-defineProps({
-  flights: {
-    type: Array,
-    default: () => [],
+const props = defineProps({
+  startDate: {
+    type: String,
+    required: true,
+  },
+  endDate: {
+    type: String,
+    required: true,
   },
 })
 
-const { isAdmin } = useCurrentUser()
+const betweenFilters = computed(() => {
+  if (
+    isNil(props.startDate) ||
+    isEmpty(props.startDate) ||
+    isNil(props.endDate) ||
+    isEmpty(props.endDate)
+  ) {
+    return {}
+  }
 
-const headers = ref([
-  {
-    text: "Purchase Date",
-    value: "purchaseDate",
-    sortable: false,
-  },
-  {
-    text: "Cost",
-    value: "cost",
-    sortable: false,
-  },
-  {
-    text: "Agent",
-    value: "agent",
-    sortable: false,
-  },
-  {
-    text: "Airline",
-    value: "airline",
-    sortable: false,
-  },
-  {
-    text: "Flight Info",
-    value: "flightInfo",
-    sortable: false,
-  },
-  {
-    text: "Final Destination",
-    value: "finalDestination",
-    sortable: false,
-  },
-  {
-    text: "Department",
-    value: "dept",
-    sortable: false,
-  },
-  {
-    text: "Traveler First Name",
-    value: "travelerFirstName",
-    sortable: false,
-  },
-  {
-    text: "Traveler Last Name",
-    value: "travelerLastName",
-    sortable: false,
-  },
-  {
-    text: "Reconciled",
-    value: "reconciled",
-    sortable: false,
-  },
-])
+  return {
+    between: [props.startDate, props.endDate],
+  }
+})
+const filters = computed(() => ({
+  ...betweenFilters.value,
+}))
 
 const selectedFlights = ref([])
 
