@@ -1,5 +1,8 @@
 import http from "@/api/http-client"
 
+/** @typedef {import("@/api/base-api").Policy} Policy */
+/** @typedef {import("@/api/base-api").ModelOrder} ModelOrder */
+
 /** Keep in sync with api/src/models/travel-desk-travel-request.ts */
 export const TRAVEL_DESK_TRAVEL_REQUEST_STATUSES = Object.freeze({
   BOOKED: "booked",
