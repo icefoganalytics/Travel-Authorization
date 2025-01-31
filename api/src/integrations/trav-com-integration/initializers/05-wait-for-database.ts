@@ -9,7 +9,7 @@ import {
 import logger from "@/utils/logger"
 import sleep from "@/utils/sleep"
 import { isCredentialFailure, isSocketFailure } from "@/utils/db-error-helpers"
-import { buildKnexConfig } from "@/integrations/trav-com-integration/db/trav-com-db-client"
+import { buildKnexConfig } from "@/integrations/trav-com-integration/db/db-migration-client"
 
 function checkHealth(dbMigrationClient: Knex, timeoutSeconds: number) {
   return new Promise((resolve, reject) => {

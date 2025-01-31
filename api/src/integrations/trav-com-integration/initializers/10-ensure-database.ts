@@ -3,7 +3,7 @@ import knex, { type Knex } from "knex"
 import { TRAVCOM_DB_NAME } from "@/config"
 import logger from "@/utils/logger"
 import { isCredentialFailure } from "@/utils/db-error-helpers"
-import { buildKnexConfig } from "@/integrations/trav-com-integration/db/trav-com-db-client"
+import { buildKnexConfig } from "@/integrations/trav-com-integration/db/db-migration-client"
 
 async function databaseExists(dbMigrationClient: Knex, databaseName: string): Promise<boolean> {
   const result = await dbMigrationClient.raw("SELECT 1 FROM sys.databases WHERE name = ?", [

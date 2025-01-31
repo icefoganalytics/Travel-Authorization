@@ -5,7 +5,7 @@ import Papa from "papaparse"
 
 import { APP_ROOT } from "@/config"
 import convertAmbiguousNullToActualNull from "@/utils/convert-ambiguous-null-to-actual-null"
-import dbTravComClient from "@/integrations/trav-com-integration/db/trav-com-db-client"
+import dbMigrationClient from "@/integrations/trav-com-integration/db/db-migration-client"
 import { type ArInvoiceDetailNoHealthRaw } from "@/integrations/trav-com-integration/models"
 
 export async function seed(_knex: Knex): Promise<void> {
@@ -24,7 +24,7 @@ export async function seed(_knex: Knex): Promise<void> {
       arInvoiceDetailAttributes.ReturnDate
     )
 
-    const existingInvoice = await dbTravComClient<ArInvoiceDetailNoHealthRaw>(
+    const existingInvoice = await dbMigrationClient<ArInvoiceDetailNoHealthRaw>(
       "ARInvoiceDetailsNoHealth"
     )
       .where({
@@ -33,11 +33,11 @@ export async function seed(_knex: Knex): Promise<void> {
       .first()
 
     if (isNil(existingInvoice)) {
-      await dbTravComClient<ArInvoiceDetailNoHealthRaw>("ARInvoiceDetailsNoHealth").insert(
+      await dbMigrationClient<ArInvoiceDetailNoHealthRaw>("ARInvoiceDetailsNoHealth").insert(
         arInvoiceDetailAttributes
       )
     } else {
-      await dbTravComClient<ArInvoiceDetailNoHealthRaw>("ARInvoiceDetailsNoHealth")
+      await dbMigrationClient<ArInvoiceDetailNoHealthRaw>("ARInvoiceDetailsNoHealth")
         .where({
           InvoiceDetailID: arInvoiceDetailAttributes.InvoiceDetailID,
         })

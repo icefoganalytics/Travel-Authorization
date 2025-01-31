@@ -1,5 +1,5 @@
 import logger from "@/utils/logger"
-import travComDbClient from "@/integrations/trav-com-integration/db/trav-com-db-client"
+import dbMigrationClient from "@/integrations/trav-com-integration/db/db-migration-client"
 
 type MigrationInfo = {
   file: string
@@ -8,7 +8,7 @@ type MigrationInfo = {
 
 async function runMigrations(): Promise<void> {
   const [_completedMigrations, pendingMigrations]: [MigrationInfo[], MigrationInfo[]] =
-    await travComDbClient.migrate.list()
+    await dbMigrationClient.migrate.list()
 
   if (pendingMigrations.length === 0) {
     logger.info("No pending migrations.")
@@ -18,7 +18,7 @@ async function runMigrations(): Promise<void> {
   for (const { file, directory } of pendingMigrations) {
     logger.info(`Running migration: ${directory}/${file}`)
     try {
-      await travComDbClient.migrate.up()
+      await dbMigrationClient.migrate.up()
     } catch (error) {
       logger.error(`Error running migration: ${error}`, { error })
       throw error

@@ -1,4 +1,4 @@
-import travComDbClient from "@/integrations/trav-com-integration/db/trav-com-db-client"
+import dbMigrationClient from "@/integrations/trav-com-integration/db/db-migration-client"
 
 import {
   type ArInvoice,
@@ -11,11 +11,11 @@ export const ArInvoicesController = {
     arInvoices: ArInvoice[]
     totalCount: number
   }> {
-    const totalCount = await travComDbClient("ARInvoicesNoHealth")
+    const totalCount = await dbMigrationClient("ARInvoicesNoHealth")
       .count({ count: "*" })
       .then((r) => Number(r[0].count || "0"))
 
-    const arInvoicesNoHealthRaw = await travComDbClient<ArInvoiceNoHealthRaw>(
+    const arInvoicesNoHealthRaw = await dbMigrationClient<ArInvoiceNoHealthRaw>(
       "ARInvoicesNoHealth"
     )
       .limit(perPage)

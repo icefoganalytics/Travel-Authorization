@@ -5,7 +5,7 @@ import Papa from "papaparse"
 
 import { APP_ROOT } from "@/config"
 import convertAmbiguousNullToActualNull from "@/utils/convert-ambiguous-null-to-actual-null"
-import dbTravComClient from "@/integrations/trav-com-integration/db/trav-com-db-client"
+import dbMigrationClient from "@/integrations/trav-com-integration/db/db-migration-client"
 import { type SegmentNoHealthRaw } from "@/integrations/trav-com-integration/models"
 
 export async function seed(_knex: Knex): Promise<void> {
@@ -22,16 +22,16 @@ export async function seed(_knex: Knex): Promise<void> {
     )
     segmentAttributes.ArrivalInfo = convertAmbiguousNullToActualNull(segmentAttributes.ArrivalInfo)
 
-    const existingSegment = await dbTravComClient<SegmentNoHealthRaw>("segmentsNoHealth")
+    const existingSegment = await dbMigrationClient<SegmentNoHealthRaw>("segmentsNoHealth")
       .where({
         segmentID: segmentAttributes.segmentID,
       })
       .first()
 
     if (isNil(existingSegment)) {
-      await dbTravComClient<SegmentNoHealthRaw>("segmentsNoHealth").insert(segmentAttributes)
+      await dbMigrationClient<SegmentNoHealthRaw>("segmentsNoHealth").insert(segmentAttributes)
     } else {
-      await dbTravComClient<SegmentNoHealthRaw>("segmentsNoHealth")
+      await dbMigrationClient<SegmentNoHealthRaw>("segmentsNoHealth")
         .where({
           segmentID: segmentAttributes.segmentID,
         })

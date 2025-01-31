@@ -4,7 +4,7 @@ import { Knex } from "knex"
 import Papa from "papaparse"
 
 import { APP_ROOT } from "@/config"
-import dbTravComClient from "@/integrations/trav-com-integration/db/trav-com-db-client"
+import dbMigrationClient from "@/integrations/trav-com-integration/db/db-migration-client"
 import { type ArInvoiceNoHealthRaw } from "@/integrations/trav-com-integration/models"
 
 export async function seed(_knex: Knex): Promise<void> {
@@ -16,16 +16,16 @@ export async function seed(_knex: Knex): Promise<void> {
   })
 
   for (const arInvoiceAttributes of arInvoicesAttributes) {
-    const existingInvoice = await dbTravComClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth")
+    const existingInvoice = await dbMigrationClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth")
       .where({
         InvoiceID: arInvoiceAttributes.InvoiceID,
       })
       .first()
 
     if (isNil(existingInvoice)) {
-      await dbTravComClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth").insert(arInvoiceAttributes)
+      await dbMigrationClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth").insert(arInvoiceAttributes)
     } else {
-      await dbTravComClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth")
+      await dbMigrationClient<ArInvoiceNoHealthRaw>("ARInvoicesNoHealth")
         .where({
           InvoiceID: arInvoiceAttributes.InvoiceID,
         })

@@ -1,9 +1,9 @@
 import logger from "@/utils/logger"
-import travComDbClient from "@/integrations/trav-com-integration/db/trav-com-db-client"
+import dbMigrationClient from "@/integrations/trav-com-integration/db/db-migration-client"
 
 export async function runSeeds(force = false): Promise<void> {
   if (process.env.SKIP_SEEDING_UNLESS_EMPTY === "true" && force !== true) {
-    const count = await travComDbClient("ARInvoicesNoHealth")
+    const count = await dbMigrationClient("ARInvoicesNoHealth")
       .count({ count: "*" })
       .then((r) => Number(r[0].count || "0"))
 
@@ -14,7 +14,7 @@ export async function runSeeds(force = false): Promise<void> {
   }
 
   try {
-    await travComDbClient.seed.run()
+    await dbMigrationClient.seed.run()
   } catch (error) {
     logger.error(`Error running seeds: ${error}`, { error })
     throw error
