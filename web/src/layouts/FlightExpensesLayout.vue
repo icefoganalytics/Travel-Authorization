@@ -58,6 +58,7 @@
       <v-tabs
         class="mt-8"
         active-class="primary--text teal lighten-5"
+        show-arrows
       >
         <v-tab
           :to="{

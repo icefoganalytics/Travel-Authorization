@@ -109,7 +109,7 @@
         {{ flight }}
       </div>
     </template>
-    <template #item.cost="{ item }"> $ {{ formatCurrency(item.cost) }} </template>
+    <template #item.cost="{ item }"> {{ formatCurrency(item.cost) }} </template>
     <template #item.reconciled="{ item }">
       <div class="text-center">
         <v-icon
@@ -133,6 +133,10 @@ import { ExportToCsv } from "export-to-csv"
 
 import http from "@/api/http-client"
 import { FLIGHT_RECONCILE_URL } from "@/urls"
+
+import capitalize from "@/utils/capitalize"
+import formatCurrency from "@/utils/format-currency"
+import formatDate from "@/utils/format-date"
 
 import useCurrentUser from "@/use/use-current-user"
 
