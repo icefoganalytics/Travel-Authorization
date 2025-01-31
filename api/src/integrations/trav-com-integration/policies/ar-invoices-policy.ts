@@ -7,8 +7,6 @@ import PolicyFactory from "@/policies/policy-factory"
 import { allRecordsScope, noRecordsScope } from "@/policies/base-policy"
 
 export class ArInvoicesPolicy extends PolicyFactory(ArInvoice) {
-  // TODO: add ability for traveller to create/read/update/delete their own data
-  // Might need to add travelerId to a bunch of models?
   show(): boolean {
     if (this.user.isTravelDeskUser || this.user.isAdmin) return true
 
@@ -16,28 +14,18 @@ export class ArInvoicesPolicy extends PolicyFactory(ArInvoice) {
   }
 
   create(): boolean {
-    if (this.user.isTravelDeskUser || this.user.isAdmin) return true
-
     return false
   }
 
   update(): boolean {
-    if (this.user.isTravelDeskUser || this.user.isAdmin) return true
-
     return false
   }
 
   destroy(): boolean {
-    if (this.user.isTravelDeskUser || this.user.isAdmin) return true
-
     return false
   }
 
   permittedAttributes(): Path[] {
-    if (this.user.isTravelDeskUser || this.user.isAdmin) {
-      return []
-    }
-
     return []
   }
 
