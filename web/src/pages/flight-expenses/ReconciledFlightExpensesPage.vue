@@ -134,9 +134,7 @@ import { ExportToCsv } from "export-to-csv"
 import http from "@/api/http-client"
 import { FLIGHT_RECONCILE_URL } from "@/urls"
 
-import capitalize from "@/utils/capitalize"
-import formatCurrency from "@/utils/format-currency"
-import formatDate from "@/utils/format-date"
+import { capitalize, formatCurrency, formatDate } from "@/utils/formatters"
 
 import useCurrentUser from "@/use/use-current-user"
 

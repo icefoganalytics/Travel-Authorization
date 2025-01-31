@@ -1,19 +1,5 @@
-import { isNil } from "lodash"
-
-function formatCurrency(amount, currency = "CAD") {
-  if (isNil(amount)) {
-    return ""
-  }
-
-  const minimumFractionDigits = amount > 1 ? 2 : 3
-  const maximumFractionDigits = amount > 1 ? 2 : 3
-  const formatter = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency,
-    minimumFractionDigits,
-    maximumFractionDigits,
-  })
-  return formatter.format(amount)
-}
+// TODO: replace all references to this with newer
+// import { formatCurrency } from "@/utils/formatters" location
+import { formatCurrency } from "@/utils/formatters"
 
 export default formatCurrency
