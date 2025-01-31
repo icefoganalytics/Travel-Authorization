@@ -120,8 +120,8 @@ const alertMsg = ref("")
 
 const isLoading = ref(false)
 
-const startDate = ref("")
-const endDate = ref("")
+const endDate = ref(DateTime.local().toISODate())
+const startDate = ref(DateTime.fromISO(endDate.value).minus({ days: 1 }).toISODate())
 
 const endDateMinusOneDay = computed(() => {
   return DateTime.fromISO(endDate.value).minus({ days: 1 }).toISODate()
@@ -130,12 +130,8 @@ const startDatePlusOneDay = computed(() => {
   return DateTime.fromISO(startDate.value).plus({ days: 1 }).toISODate()
 })
 
-onMounted(() => {
-  endDate.value = DateTime.local().toISODate()
-  startDate.value = DateTime.fromISO(endDate.value).minus({ days: 1 }).toISODate()
-
-  alertMsg.value = ""
-  refresh()
+onMounted(async () => {
+  await getFlights()
 })
 
 async function getFlights() {
