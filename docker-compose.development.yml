@@ -96,7 +96,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
-  # Represents an external database for TravCom (maybe Travel Compliance?)
+  # Represents an external database for TravCom (a.k.a. Travel Computer Systems)
   db_trav_com:
     image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
     user: root

@@ -1,3 +1,4 @@
 export { auth0Integration } from "./auth0-integration"
-export { travComIntegration } from "./trav-com-integration"
 export { yukonGovernmentIntegration } from "./yukon-government-integration"
+
+export * as TravComIntegration from "./trav-com-integration"

@@ -17,6 +17,14 @@ const MAX_PER_PAGE = 1000
 const MAX_PER_PAGE_EQUIVALENT = -1
 const DEFAULT_PER_PAGE = 10
 
+export type QueryOptions = {
+  where?: Record<string, unknown>
+  filters?: Record<string, unknown>
+  order?: ModelOrder
+  page?: number
+  perPage?: number | 1000 | -1
+}
+
 /**
  * See https://guides.rubyonrails.org/routing.html#crud-verbs-and-actions
  *

@@ -1,44 +1,75 @@
-import dbMigrationClient from "@/integrations/trav-com-integration/db/db-migration-client"
+import { isNil } from "lodash"
 
-import {
-  type ArInvoice,
-  type ArInvoiceNoHealthRaw,
-} from "@/integrations/trav-com-integration/models"
-import { type QueryOptions } from "@/integrations/trav-com-integration/controllers/base"
+import logger from "@/utils/logger"
 
-export const ArInvoicesController = {
-  async index({ page = 1, perPage = 10 }: QueryOptions = {}): Promise<{
-    arInvoices: ArInvoice[]
-    totalCount: number
-  }> {
-    const totalCount = await dbMigrationClient("ARInvoicesNoHealth")
-      .count({ count: "*" })
-      .then((r) => Number(r[0].count || "0"))
+import { ArInvoice } from "@/integrations/trav-com-integration/models"
+import { ArInvoicesPolicy } from "@/integrations/trav-com-integration/policies"
+import BaseController from "@/controllers/base-controller"
 
-    const arInvoicesNoHealthRaw = await dbMigrationClient<ArInvoiceNoHealthRaw>(
-      "ARInvoicesNoHealth"
-    )
-      .limit(perPage)
-      .offset((page - 1) * perPage)
-      .select()
+export class ArInvoicesController extends BaseController<ArInvoice> {
+  async index() {
+    try {
+      const where = this.buildWhere()
+      const scopes = this.buildFilterScopes()
+      const order = this.buildOrder()
 
-    const arInvoices = arInvoicesNoHealthRaw.map((r) => ({
-      invoiceID: r.InvoiceID,
-      invoiceNumber: r.InvoiceNumber,
-      profileNumber: r.ProfileNumber,
-      profileName: r.ProfileName,
-      department: r.Department,
-      bookingDate: r.BookingDate,
-      systemDate: r.SystemDate,
-      description: r.Description,
-      invoiceRemarks: r.InvoiceRemarks,
-    }))
+      const scopedArInvoices = ArInvoicesPolicy.applyScope(scopes, this.currentUser)
 
-    return {
-      arInvoices,
-      totalCount,
+      const totalCount = await scopedArInvoices.count({ where })
+      const arInvoices = await scopedArInvoices.findAll({
+        where,
+        limit: this.pagination.limit,
+        offset: this.pagination.offset,
+        order,
+        // include: ["details", "segments"],
+      })
+      return this.response.status(200).json({
+        arInvoices,
+        totalCount,
+      })
+    } catch (error) {
+      logger.error(`Error fetching AR invoices: ${error}`, { error })
+      return this.response.status(400).json({
+        message: `Failed to retrieve AR invoices: ${error}`,
+      })
     }
-  },
+  }
+
+  async show() {
+    try {
+      const arInvoice = await this.loadArInvoice()
+      if (isNil(arInvoice)) {
+        return this.response.status(404).json({
+          message: "AR invoice not found.",
+        })
+      }
+
+      const policy = this.buildPolicy(arInvoice)
+      if (!policy.show()) {
+        return this.response.status(403).json({
+          message: "You are not authorized to view this AR invoice.",
+        })
+      }
+
+      return this.response.status(200).json({
+        arInvoice,
+        policy,
+      })
+    } catch (error) {
+      logger.error(`Error fetching AR invoice: ${error}`, { error })
+      return this.response.status(400).json({
+        message: `Failed to retrieve AR invoice: ${error}`,
+      })
+    }
+  }
+
+  private async loadArInvoice() {
+    return await ArInvoice.findByPk(this.params.arInvoiceId)
+  }
+
+  private buildPolicy(arInvoice: ArInvoice = ArInvoice.build()) {
+    return new ArInvoicesPolicy(this.currentUser, arInvoice)
+  }
 }
 
 export default ArInvoicesController
