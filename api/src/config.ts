@@ -60,16 +60,36 @@ export const DB_CONFIG = {
   },
 }
 
+export const TRAVCOM_DB_NAME = process.env.TRAVCOM_DB_NAME || ""
+export const TRAVCOM_DB_USER = process.env.TRAVCOM_DB_USER || ""
+export const TRAVCOM_DB_PASS = process.env.TRAVCOM_DB_PASS || ""
+export const TRAVCOM_DB_HOST = process.env.TRAVCOM_DB_HOST || ""
+export const TRAVCOM_DB_PORT = parseInt(process.env.TRAVCOM_DB_PORT || "1433")
+
 export const TRAVCOM_DB_CONFIG = {
   client: "mssql",
   connection: {
-    host: process.env.TRAVCOM_DB_HOST || "",
-    user: process.env.TRAVCOM_DB_USER || "",
-    password: process.env.TRAVCOM_DB_PASS || "",
-    database: process.env.TRAVCOM_DB_NAME || "",
-    port: parseInt(process.env.TRAVCOM_DB_PORT || "1433"),
+    host: TRAVCOM_DB_HOST,
+    user: TRAVCOM_DB_USER,
+    password: TRAVCOM_DB_PASS,
+    database: TRAVCOM_DB_NAME,
+    port: TRAVCOM_DB_PORT,
+  },
+  pool: { min: 0, max: 10, idleTimeoutMillis: 1000 },
+  migrations: {
+    schemaName: "dbo",
+    tableName: "knex_migrations",
+    directory: path.resolve(__dirname, "./integrations/trav-com-integration/db/migrations"),
+  },
+  seeds: {
+    directory: path.resolve(__dirname, "./integrations/trav-com-integration/db/seeds"),
   },
 }
+
+export const TRAV_COM_INITIALIZER_PATH = path.join(
+  __dirname,
+  "integrations/trav-com-integration/initializers"
+)
 
 export const RELEASE_TAG = process.env.RELEASE_TAG || ""
 export const GIT_COMMIT_HASH = process.env.GIT_COMMIT_HASH || ""
@@ -81,3 +101,14 @@ export const AWS_LOGGING_REGION = process.env.AWS_LOGGING_REGION || "ca-central-
 export const AWS_LOGGING_ACCESS_ID = process.env.AWS_LOGGING_ACCESS_ID || ""
 export const AWS_LOGGING_ACCESS_KEY = process.env.AWS_LOGGING_ACCESS_KEY || ""
 export const DEFAULT_LOG_LEVEL = process.env.DEFAULT_LOG_LEVEL || "debug"
+
+export const DB_HEALTH_CHECK_INTERVAL_SECONDS = parseInt(
+  process.env.DB_HEALTH_CHECK_INTERVAL_SECONDS || "5"
+)
+export const DB_HEALTH_CHECK_TIMEOUT_SECONDS = parseInt(
+  process.env.DB_HEALTH_CHECK_TIMEOUT_SECONDS || "10"
+)
+export const DB_HEALTH_CHECK_RETRIES = parseInt(process.env.DB_HEALTH_CHECK_RETRIES || "3")
+export const DB_HEALTH_CHECK_START_PERIOD_SECONDS = parseInt(
+  process.env.DB_HEALTH_CHECK_START_PERIOD_SECONDS || "5"
+)

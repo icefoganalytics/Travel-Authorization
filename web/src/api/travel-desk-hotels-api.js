@@ -1,6 +1,7 @@
 import http from "@/api/http-client"
 
 /** @typedef {import('@/api/base-api.js').Policy} Policy */
+/** @typedef {import('@/api/base-api.js').ModelOrder} ModelOrder */
 
 /** Keep in sync with api/src/models/travel-desk-hotel.ts */
 export const TRAVEL_DESK_HOTEL_STATUSES = Object.freeze({
@@ -55,7 +56,7 @@ export const TRAVEL_DESK_HOTEL_STATUSES = Object.freeze({
  * @typedef {{
  *   where?: TravelDeskHotelWhereOptions;
  *   filters?: TravelDeskHotelFiltersOptions;
- *   order?: string;
+ *   order?: ModelOrder[];
  *   page?: number;
  *   perPage?: number
  * }} TravelDeskHotelsQueryOptions

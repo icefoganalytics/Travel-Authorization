@@ -29,7 +29,6 @@ a {
 .v-main .v-btn,
 .v-dialog__content .v-btn {
   text-transform: none;
-  color: #ffffff;
   /* border: 1px #000 solid !important; */
   text-decoration: none;
   margin: 15px 0;

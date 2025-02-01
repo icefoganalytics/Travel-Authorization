@@ -1,17 +1,5 @@
-import { isEmpty, isNil } from "lodash"
-import { DateTime } from "luxon"
-
-function formatDate(date, format = "MMM d yyyy") {
-  if (isNil(date) || isEmpty(date)) {
-    return ""
-  }
-
-  const datetime = DateTime.fromISO(date)
-  if (datetime.isValid) {
-    return datetime.toFormat(format)
-  }
-
-  return ""
-}
+// TODO: replace all references to this with newer
+// import { formatDate } from "@/utils/formatters" location
+import { formatDate } from "@/utils/formatters"
 
 export default formatDate
