@@ -4,41 +4,21 @@
       <h2 class="mb-md-0">Flight Expenses</h2>
     </v-card-title>
     <v-card-text>
-      <v-row class="d-flex align-baseline">
+      <v-row class="d-flex align-center">
         <v-spacer />
         <v-col
           cols="12"
-          md="2"
+          md="3"
         >
-          <b>Records Date Range:</b>
-        </v-col>
-        <!-- TODO: use Vuetify a date range picker see https://v2.vuetifyjs.com/en/components/date-pickers/#range -->
-        <v-col
-          cols="12"
-          md="2"
-        >
-          <v-text-field
-            v-model="startDate"
-            type="date"
-            label="Start Date"
-            :rules="[lessThanDate(endDate, { referenceFieldLabel: 'end date' })]"
-            :max="endDateMinusOneDay"
-            dense
-            outlined
-          />
-        </v-col>
-        <v-col
-          cols="12"
-          md="2"
-        >
-          <v-text-field
-            v-model="endDate"
-            :rules="[greaterThanDate(startDate, { referenceFieldLabel: 'start date' })]"
-            :min="startDatePlusOneDay"
-            type="date"
-            label="End Date"
-            dense
-            outlined
+          <DatePickerRangeDialog
+            v-model="dateRange"
+            label="Records date range"
+            :activator-props="{
+              clearable: true,
+              outlined: true,
+              dense: true,
+              hideDetails: true,
+            }"
           />
         </v-col>
         <v-col
@@ -49,9 +29,15 @@
             class="my-0"
             color="primary"
             block
-            @click="search"
+            primary
+            @click="clearDateRange"
           >
-            Search
+            <v-icon
+              small
+              left
+              >mdi-close</v-icon
+            >
+            Clear
           </v-btn>
         </v-col>
       </v-row>
@@ -110,7 +96,8 @@ import { DateTime } from "luxon"
 
 import http from "@/api/http-client"
 import { TRAVEL_COM_URL } from "@/urls"
-import { greaterThanDate, lessThanDate } from "@/utils/validators"
+
+import DatePickerRangeDialog from "@/components/common/DatePickerRangeDialog.vue"
 
 const flights = ref([])
 const reconciledFlights = computed(() => flights.value.filter((flight) => flight.reconciled))
@@ -120,15 +107,17 @@ const alertMsg = ref("")
 
 const isLoading = ref(false)
 
-const endDate = ref(DateTime.local().toISODate())
-const startDate = ref(DateTime.fromISO(endDate.value).minus({ days: 1 }).toISODate())
+const dateRange = ref([
+  DateTime.local().toISODate(),
+  DateTime.local().minus({ days: 1 }).toISODate(),
+])
 
-const endDateMinusOneDay = computed(() => {
-  return DateTime.fromISO(endDate.value).minus({ days: 1 }).toISODate()
-})
-const startDatePlusOneDay = computed(() => {
-  return DateTime.fromISO(startDate.value).plus({ days: 1 }).toISODate()
-})
+const startDate = computed(() => dateRange.value[0])
+const endDate = computed(() => dateRange.value[1])
+
+function clearDateRange() {
+  dateRange.value = []
+}
 
 onMounted(async () => {
   await getFlights()
@@ -150,20 +139,5 @@ async function getFlights() {
 
 async function refresh() {
   return getFlights()
-}
-
-async function search() {
-  alertMsg.value = ""
-
-  // TODO: replace this with date max/min restraints, or paginate data.
-  const diffDays = DateTime.fromISO(endDate.value).diff(
-    DateTime.fromISO(startDate.value),
-    "days"
-  ).days
-  if (diffDays > 60) {
-    alertMsg.value =
-      "If the Date Range is over 60 days, not all records may displayed. Please use a shorter Date Range."
-  }
-  await refresh()
 }
 </script>

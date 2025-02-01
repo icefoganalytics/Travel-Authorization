@@ -29,16 +29,18 @@ import { computed, ref } from "vue"
 import { ExportToCsv } from "export-to-csv"
 import { isNil, isEmpty } from "lodash"
 
+import useBreadcrumbs from "@/use/use-breadcrumbs"
+
 import ArInvoicesDataTable from "@/components/trav-com/ar-invoices/ArInvoicesDataTable.vue"
 
 const props = defineProps({
   startDate: {
     type: String,
-    required: true,
+    default: "",
   },
   endDate: {
     type: String,
-    required: true,
+    default: "",
   },
 })
 
@@ -106,6 +108,21 @@ async function exportToExcel() {
   const csvExporter = new ExportToCsv(options)
   csvExporter.generateCsv(csvInfo)
 }
+
+useBreadcrumbs([
+  {
+    text: "Flight Expenses",
+    to: {
+      name: "flight-expenses/AllFlightExpenesPage",
+    },
+  },
+  {
+    text: "All Flights Expenses",
+    to: {
+      name: "flight-expenses/AllFlightExpenesPage",
+    },
+  },
+])
 </script>
 
 <style scoped>
