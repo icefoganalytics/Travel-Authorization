@@ -51,7 +51,7 @@
             name: 'flight-expenses/AllFlightExpenesPage',
           }"
         >
-          Flights
+          All
         </v-tab>
         <v-tab
           :to="{
