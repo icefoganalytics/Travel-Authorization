@@ -57,18 +57,22 @@
     </template>
     <template #item.sellingFare="{ value }"> {{ formatCurrency(value) }} </template>
     <template #item.reconciled="{ value }">
-      <div class="text-center">
-        <v-icon
-          v-if="value"
-          color="success"
-          >mdi-checkbox-marked</v-icon
-        >
-        <v-icon
-          v-else
-          color="warning"
-          >mdi-close-box</v-icon
-        >
-      </div>
+      <v-chip
+        v-if="value"
+        color="success"
+        text-color="white"
+        size="small"
+      >
+        Yes
+      </v-chip>
+      <v-chip
+        v-else
+        color="warning"
+        text-color="white"
+        size="small"
+      >
+        No
+      </v-chip>
     </template>
   </v-data-table>
 </template>
@@ -152,6 +156,7 @@ const headers = ref([
     text: "Reconciled",
     value: "reconciled",
     sortable: false,
+    align: "center",
   },
 ])
 
